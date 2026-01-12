@@ -1,0 +1,5 @@
+[networking.query]
+address = "0.0.0.0:25565"
+
+[commands]
+use_tty = false
