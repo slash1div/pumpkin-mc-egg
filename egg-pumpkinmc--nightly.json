@@ -1,0 +1,52 @@
+{
+    "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+    "meta": {
+        "version": "PTDL_v2",
+        "update_url": null
+    },
+    "exported_at": "2026-01-12T17:54:37-06:00",
+    "name": "PumpkinMC - Nightly",
+    "author": "slashdiv@swaggy.one",
+    "description": "Pumpkin is a Minecraft server built entirely in Rust, offering a fast, efficient, and customizable experience. It prioritizes performance and player enjoyment while adhering to the core mechanics of the game.",
+    "features": null,
+    "docker_images": {
+        "ghcr.io\/ptero-eggs\/yolks:ubuntu": "ghcr.io\/ptero-eggs\/yolks:ubuntu"
+    },
+    "file_denylist": [],
+    "startup": ".\/{{SERVER_FILENAME}}",
+    "config": {
+        "files": "{\r\n    \"config\/features.toml\": {\r\n        \"parser\": \"file\",\r\n        \"find\": {\r\n            \"use_tty = true\": \"use_tty = false\",\r\n            \"address = \\\"0.0.0.0:25565\\\"\": \"address = \\\"0.0.0.0:{{server.build.default.port}}\\\"\"\r\n        }\r\n    },\r\n    \"config\/configuration.toml\": {\r\n        \"parser\": \"file\",\r\n        \"find\": {\r\n            \"java_edition_address = \\\"0.0.0.0:25565\\\"\": \"java_edition_address = \\\"0.0.0.0:{{server.build.default.port}}\\\"\",\r\n            \"bedrock_edition_address = \\\"0.0.0.0:19132\\\"\": \"bedrock_edition_address = \\\"0.0.0.0:{{env.SERVER_BEPORT}}\\\"\"\r\n        }\r\n    }\r\n}",
+        "startup": "{\r\n    \"done\": \")! For help, type \"\r\n}",
+        "logs": "{}",
+        "stop": "stop"
+    },
+    "scripts": {
+        "installation": {
+            "script": "#!\/bin\/ash\r\n# Pumpkin Installation Script\r\n#\r\n# Server Files: \/mnt\/server\r\n\r\nset -e\r\n\r\nARCH=$(uname -m)\r\nDOWNLOAD_URL=\"\"\r\n\r\necho \"Detected architecture: ${ARCH}\"\r\n\r\nif [ \"${ARCH}\" = \"x86_64\" ]; then\r\n    DOWNLOAD_URL=\"https:\/\/github.com\/Pumpkin-MC\/Pumpkin\/releases\/download\/nightly\/pumpkin-X64-Linux\"\r\nelif [ \"${ARCH}\" = \"aarch64\" ] || [ \"${ARCH}\" = \"arm64\" ]; then\r\n    DOWNLOAD_URL=\"https:\/\/github.com\/Pumpkin-MC\/Pumpkin\/releases\/download\/nightly\/pumpkin-ARM64-Linux\"\r\nelse\r\n    echo \"Unsupported architecture: ${ARCH}\"\r\n    exit 1\r\nfi\r\n\r\ncd \/mnt\/server\r\n\r\necho \"Downloading Pumpkin ${ARCH} from:\"\r\necho \"${DOWNLOAD_URL}\"\r\n\r\nif [ -f ${SERVER_FILENAME} ]; then\r\n    mv ${SERVER_FILENAME} ${SERVER_FILENAME}.old\r\nfi\r\n\r\ncurl -L \"${DOWNLOAD_URL}\" -o ${SERVER_FILENAME}\r\nchmod +x ${SERVER_FILENAME}\r\necho \"Downloaded Pumpkin file and made it executable.\"\r\n\r\necho \"Now validating configs...\"\r\n\r\n# Ensure config folder exists\r\nif [ ! -d \".\/config\" ]; then\r\n    echo \"Creating .\/config folder...\"\r\n    mkdir -p .\/config\r\nfi\r\n\r\n# Ensure features.toml exists\r\nif [ ! -f \".\/config\/features.toml\" ]; then\r\n    echo \"Downloading default features.toml...\"\r\n    curl -L -o .\/config\/features.toml \\\r\n    https:\/\/raw.githubusercontent.com\/slash1div\/pumpkin-mc-egg\/refs\/heads\/main\/features.toml\r\nfi\r\n\r\n# Ensure configuration.toml exists\r\nif [ ! -f \".\/config\/configuration.toml\" ]; then\r\n    echo \"Downloading default configuration.toml...\"\r\n    curl -L -o .\/config\/configuration.toml \\\r\n    https:\/\/raw.githubusercontent.com\/slash1div\/pumpkin-mc-egg\/refs\/heads\/main\/configuration.toml\r\nfi\r\n\r\necho \"Configs validated.\"\r\n\r\necho \"Pumpkin installation completed successfully.\"",
+            "container": "ghcr.io\/pterodactyl\/installers:alpine",
+            "entrypoint": "ash"
+        }
+    },
+    "variables": [
+        {
+            "name": "Server File Name",
+            "description": "Server File Name, by default this is set to 'pumpkin-server'.\r\nSet it to otherwise if you wish to have a different file name.\r\nAvoid adding any file extensions to the name.",
+            "env_variable": "SERVER_FILENAME",
+            "default_value": "pumpkin-server",
+            "user_viewable": true,
+            "user_editable": false,
+            "rules": "required|string|max:32",
+            "field_type": "text"
+        },
+        {
+            "name": "Bedrock Edition Port",
+            "description": "Bedrock Edition Port, which allows Bedrock players to connect.\r\nBy default is set to 19132. Never set this to the same as your primary port.\r\nHaving the Java and Bedrock port the same will cause crashes \/ instability.\r\nYou can disable Bedrock connections in \"config\/configuration.toml\" after install.",
+            "env_variable": "SERVER_BEPORT",
+            "default_value": "19132",
+            "user_viewable": true,
+            "user_editable": false,
+            "rules": "required|integer",
+            "field_type": "text"
+        }
+    ]
+}
